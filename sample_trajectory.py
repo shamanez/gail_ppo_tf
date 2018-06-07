@@ -3,6 +3,7 @@ import gym
 import numpy as np
 from network_models.policy_net import Policy_net
 import tensorflow as tf
+import dagger_policy_generators
 import pdb
 
 
