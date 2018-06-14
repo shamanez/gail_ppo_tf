@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
 
 
-	for i in range(NUM_TASKS):
+	for i in range(1):#NUM_TASKS):
 		scene, task = branches[i] #Here task number is actually the target 
 		print("Printing the scene and the  task type:",scene,task)
 

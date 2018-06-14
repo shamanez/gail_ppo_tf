@@ -108,7 +108,7 @@ class Expert(object):
 		target_list=[]
 
 		
-		for i in range(180):
+		for i in range(2):#180):
 			self.env = Environment({'scene_name': self.scene_scope,'terminal_state_id': int(self.task_scope)})
 			print("Starting -","*******************************************************************-----------",i)
 			print("From the environment Current State ID--",self.env.current_state_id)
@@ -153,9 +153,6 @@ class Expert(object):
 		states = np.reshape(states, newshape=[-1] + list([8192]))
 		target_list=np.reshape(target_list, newshape=[-1] + list([8192]))
 		self.open_file_and_save('trajectory/observations.csv', states)
-		print(np.shape(states))
-		print(np.shape(action_list))
-		print(np.shape(target_list))
 		self.open_file_and_save('trajectory/actions.csv', action_list)
 		self.open_file_and_save('trajectory/targets.csv', target_list)
 
