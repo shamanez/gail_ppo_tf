@@ -11,6 +11,7 @@ from constants import SCREEN_WIDTH
 from constants import SCREEN_HEIGHT
 from constants import HISTORY_LENGTH
 import pdb
+from PIL import Image
 
 class THORDiscreteEnvironment(object):  #This is the main environemtns
 
@@ -31,8 +32,16 @@ class THORDiscreteEnvironment(object):  #This is the main environemtns
     self.locations   = self.h5_file['location'][()]
     self.rotations   = self.h5_file['rotation'][()] #This has angles f 0,90,270,360 It's like agle of rotation for each location
     self.n_locations = self.locations.shape[0]  #NUMBER OF POSSIBLE LOCATIONS IN THE bathroom file is 408
+    self.obz =self.h5_file['observation'][()]
 
-
+    
+    '''
+    #print(np.shape(self.obz[80]))
+    im = Image.fromarray(self.obz[21])
+    im.show()
+    print(self.locations[80],self.locations[81],self.locations[82],self.locations[83],self.locations[84])
+    '''
+    
     self.terminals = np.zeros(self.n_locations)
     self.terminals[self.terminal_state_id] = 1
     #I Think we can have more than  one termona state
@@ -45,7 +54,7 @@ class THORDiscreteEnvironment(object):  #This is the main environemtns
     self.history_length = HISTORY_LENGTH   #Number of previous frames we stacked in
     self.screen_height  = SCREEN_HEIGHT
     self.screen_width   = SCREEN_WIDTH#Screen resoution 84*84
-
+    
       
 
     # we use pre-computed fc7 features from ResNet-50
@@ -55,11 +64,14 @@ class THORDiscreteEnvironment(object):  #This is the main environemtns
     self.s_target = self._tiled_state(self.terminal_state_id) #This target state also have four taget status of CNN output
 
 
+
+
     self.reset() #resting the environment
 
   # public methods
 
   def reset(self):
+
     # randomize initial state
     if self.initial_state:  #This is non
       k = self.initial_state
@@ -78,19 +90,17 @@ class THORDiscreteEnvironment(object):  #This is the main environemtns
 
     # reset parameters
     self.current_state_id = k   #The current state ID 
-    self.s_t = self._tiled_state(self.current_state_id) #get the currrent state  actually four of same state 
-
-
-
-
+    self.s_t = self._tiled_state(self.current_state_id) #get the currrent state  actually four of same state s
     self.reward   = 0
     self.collided = False
     self.terminal = False
 
   def step(self, action):
-
     #if self.terminal, 'step() called in terminal state' #only run if the this is not the  current state is terminal state
     k = self.current_state_id
+    print("Current state :",k)
+
+    #print("Prinitng the current state from the step", k)
     if self.transition_graph[k][action] != -1:  #check if the next state is an obsticle or -1
       self.current_state_id = self.transition_graph[k][action] #we go to a new state
       
@@ -108,8 +118,13 @@ class THORDiscreteEnvironment(object):  #This is the main environemtns
     #print("Prinintg expert's collided or not:--",self.collided)
     
     #print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    #print("Printing the next state from the step func",self.current_state_id)
      
     self.s_t1 = np.append(self.s_t[:,1:], self.state, axis=1)  #add the new state to the four states (history ) #here the self.state is a property
+    self.update()
+    print("Next state after the action-",action,"is:",self.current_state_id)
+    return self.s_t,self.terminal,self.collided
+
 
   def update(self):
     self.s_t = self.s_t1
